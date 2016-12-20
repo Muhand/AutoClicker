@@ -14,16 +14,15 @@ public class MainActivity extends AppCompatActivity {
     //Private Members
     private boolean detectLocation = false;
     private boolean startTouching = false;
-    private float currentX = -1;
+    private float currentX = -3;
     private float currentY = -1;
-    long downTime;
-    long eventTime;
-    float x;
-    float y;
 
     //Private controls
     private Button locationBtn;
     private Button startTouchingBtn;
+
+    //Finals
+    final Handler ha = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,18 +30,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         locationBtn = (Button) findViewById(R.id.locationBtn);
         startTouchingBtn = (Button) findViewById(R.id.startTouching);
-
-        final Handler ha = new Handler();
-        ha.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                //call function
-                if(startTouching && (currentY > -1 && currentX > -1))
-                    onTouchEvent(event);
-                ha.postDelayed(this, 1000);
-            }
-        }, 1000);
-
     }
 
     @Override
@@ -62,8 +49,11 @@ public class MainActivity extends AppCompatActivity {
                         currentX = x;
                         currentY = y;
                     }
-                    Log.d("X", "x: " + currentX);
-                    Log.d("Y", "y: " + currentY);
+                    Log.d("test", "test");
+//                    Log.d("X", "currentX: " + currentX);
+//                    Log.d("Y", "currentY: " + currentY);
+//                    Log.d("X", "x: " + x);
+//                    Log.d("Y", "y: " + y);
                     break;
             }
 
@@ -82,47 +72,26 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void startAutoTouch(View view) throws InterruptedException {
+    public void startAutoTouch(View view){
         if(startTouching) {
+            stop();
             startTouching = false;
             startTouchingBtn.setText("Start Auto Touch");
         }
         else {
+            start();
             startTouching = true;
-
             startTouchingBtn.setText("Stop Auto Touch");
         }
-//        if(currentX != -1 || currentY != -1) {
-            // Obtain MotionEvent object
-//            downTime =
-//            eventTime = SystemClock.uptimeMillis() + 1000;
-//            Log.d("t", Long.toString(downTime));
-//            Log.d("t",Long.toString(eventTime));
-//            x = 0;
-//            y = 0;
-
-//            // Dispatch touch event to view
-//        while(true) {
-
-//            view.dispatchTouchEvent(event);
-//        final Handler ha=new Handler();
-//        ha.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                //call function
-//                Log.d("s", "test1");
-//                ha.postDelayed(this, 1000);
-//            }
-//        }, 1000);
-
-//            Thread.sleep(10000);
-//        }
-//        }
-
     }
-    private void autoTouch()
+    private void stop()
     {
-        final Handler ha = new Handler();
+        ha.removeCallbacksAndMessages(null);
+    }
+    private void start()
+    {
+        updateEvent();
+
         ha.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -134,22 +103,21 @@ public class MainActivity extends AppCompatActivity {
         }, 1000);
     }
 
+    private void updateEvent()
+    {
+        event = MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis()+100, MotionEvent.ACTION_UP,
+                currentX, currentY, 0, 0,
+                0, 0, 0,
+                0, 0x0);
+
+    }
 
 
     // List of meta states found here:     developer.android.com/reference/android/view/KeyEvent.html#getMetaState()
-    int metaState = 0;
-//    MotionEvent motionEvent = MotionEvent.obtain(
-//            SystemClock.uptimeMillis(),
-//            SystemClock.uptimeMillis() + 100,
-//            MotionEvent.ACTION_UP,
-//            0,
-//            0,
-//            0
-//    );
-MotionEvent event = MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis()+100, MotionEvent.ACTION_UP,
-        0, 0, 0, 0,
-        0, 0, 0,
-        0, 0x0);
-
-
+    //These are the even parameters:
+    //(downtime, eventTime, Action, x, y, pressure, size, metaState, xPrecision, yPrecision, deviceID, edgeFlags
+    MotionEvent event = MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis()+100, MotionEvent.ACTION_UP,
+            currentX, currentY, 0, 0,
+            0, 0, 0,
+            0, 0x0);
 }
